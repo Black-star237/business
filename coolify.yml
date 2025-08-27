@@ -1,7 +1,7 @@
 name: Fluxiabiz-PWA
 type: static
 build:
-  command: npm run build
+  command: bun run build
   output: dist
   dockerfile: |
     FROM node:18-alpine AS builder
