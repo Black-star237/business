@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://hhkqazdivfkqcpcjdqbv.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhoa3FhemRpdmZrcWNwY2pkcWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NzIwMzcsImV4cCI6MjA3MTI0ODAzN30.PYopflHcTXkuMC9k0o2vMPJzBrIp705hrvxUdggMZoM";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
@@ -15,3 +15,31 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+// Log des erreurs de connexion Supabase
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log(`Supabase Auth State Change: ${event}`, session);
+});
+
+// Intercepter les erreurs de requête
+const originalFrom = supabase.from.bind(supabase);
+supabase.from = (table: string) => {
+  const query = originalFrom(table);
+  query.select = (...args: any[]) => {
+    const result = (query.select as any)(...args);
+    result.then = async (onFulfilled: any, onRejected: any) => {
+      try {
+        const data = await (result as any);
+        return onFulfilled ? onFulfilled(data) : data;
+      } catch (error) {
+        console.error(`Erreur Supabase sur la table ${table}:`, error);
+        if (onRejected) return onRejected(error);
+        throw error;
+      }
+    };
+    return result;
+  };
+  return query;
+};
+
+console.log("Supabase client initialisé avec :", { url: SUPABASE_URL, key: SUPABASE_PUBLISHABLE_KEY ? "*****" : "non définie" });

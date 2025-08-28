@@ -39,57 +39,36 @@ const App = () => {
         <AuthProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public routes */}
+              <Route path="/" element={<Layout><Index /></Layout>} />
+              <Route path="/stocks" element={<Layout><Stocks /></Layout>} />
+              <Route path="/product/:id" element={<Layout><ProductDetail /></Layout>} />
+              <Route path="/add-product" element={<Layout><AddProduct /></Layout>} />
+              <Route path="/facturation" element={<Layout><Facturation /></Layout>} />
+              <Route path="/entreprises" element={<Layout><Entreprises /></Layout>} />
+              <Route path="/equipe" element={<Layout><Equipe /></Layout>} />
+              <Route path="/promotions" element={<Layout><Promotions /></Layout>} />
+              <Route path="/categories" element={<Layout><Categories /></Layout>} />
+              <Route path="/rapports" element={<Layout><Rapports /></Layout>} />
+              <Route path="/clients" element={<Layout><Clients /></Layout>} />
+              <Route path="/client/:id" element={<Layout><ClientDetail /></Layout>} />
+              <Route path="/vente" element={<Layout><Vente /></Layout>} />
+              <Route path="/parametres" element={<Layout><Parametres /></Layout>} />
+              <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
+              <Route path="/profile" element={<Layout><Profile /></Layout>} />
               <Route path="/auth" element={<Auth />} />
-
-              {/* Company setup - protected but outside main layout */}
-              <Route path="/company-setup" element={
-                <ProtectedRoute>
-                  <CompanySetup />
-                </ProtectedRoute>
-              } />
-
-              {/* Protected routes with layout */}
-              <Route path="/*" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/stocks" element={<Stocks />} />
-                      <Route path="/stocks/:id" element={<ProductDetail />} />
-                      <Route path="/stocks/add" element={<AddProduct />} />
-                      <Route path="/rapports" element={<Rapports />} />
-                      <Route path="/facturation" element={<Facturation />} />
-                      <Route path="/entreprises" element={<Entreprises />} />
-                      <Route path="/equipe" element={<Equipe />} />
-                      <Route path="/promotions" element={<Promotions />} />
-                      <Route path="/parametres" element={<Parametres />} />
-                      <Route path="/categories" element={<Categories />} />
-                      <Route path="/clients" element={<Clients />} />
-                      <Route path="/clients/:id" element={<ClientDetail />} />
-                      <Route path="/vente" element={<Vente />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/notifications" element={<Notifications />} />
-                      <Route path="/assistant" element={
-                        <Suspense fallback={
-                          <div className="flex items-center justify-center h-screen">
-                            <div className="text-center">
-                              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                              <p>Chargement de l'Assistant IA...</p>
-                            </div>
-                          </div>
-                        }>
-                          <AssistantIA />
-                        </Suspense>
-                      } />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Layout>
-                </ProtectedRoute>
-              } />
+              <Route path="/company-setup" element={<CompanySetup />} />
+              <Route
+                path="/assistant-ia"
+                element={
+                  <Suspense fallback={<div>Chargement de l'assistant IA...</div>}>
+                    <Layout><AssistantIA /></Layout>
+                  </Suspense>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
             </Routes>
-            <PwaInstallPrompt />
             <Toaster />
+            <PwaInstallPrompt />
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>

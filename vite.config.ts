@@ -15,40 +15,8 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' &&
     componentTagger(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-      workbox: {
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB limit instead of 2MB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}']
-      },
-      manifest: {
-        name: 'FluxiaBiz',
-        short_name: 'FluxiaBiz',
-        description: 'Solution ERP complète pour PME avec IA intégrée',
-        theme_color: '#0f172a',
-        background_color: '#f8fafc',
-        display: 'standalone',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
-          }
-        ]
-      }
-    }),
+    // Désactivé temporairement pour résoudre le problème d'injection des scripts
+    // VitePWA({...})
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -59,6 +27,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'src/main.tsx'),
+        index: path.resolve(__dirname, 'index.html'),
       },
       output: {
         manualChunks: {
@@ -66,9 +35,13 @@ export default defineConfig(({ mode }) => ({
           'markdown-vendor': ['react-markdown', 'remark-gfm', 'react-syntax-highlighter'],
           // Separate UI components
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-scroll-area'],
-          // Keep React separately  
+          // Keep React separately
           'react-vendor': ['react', 'react-dom']
-        }
+        },
+        // Disable hash in main file name for stable reference
+        entryFileNames: 'assets/[name].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
     chunkSizeWarningLimit: 1000 // Increase warning limit to 1MB

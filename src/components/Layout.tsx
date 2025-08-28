@@ -15,7 +15,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const isAssistantPage = location.pathname === '/assistant';
+  const isAssistantPage = location.pathname === '/assistant-ia';
 
   const [isDarkMode, setIsDarkMode] = useState(false);
 
