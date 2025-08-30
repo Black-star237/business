@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'create_company_page.dart';
 
 class NoCompanyPage extends StatelessWidget {
   const NoCompanyPage({super.key});
@@ -7,17 +8,17 @@ class NoCompanyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Entreprises'),
+        title: const Text('Entreprises', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.business,
-              size: 80,
-              color: Colors.grey,
+            Image.asset(
+              'assets/notfound_img.png',
+              width: 300,
+              height: 300,
             ),
             const SizedBox(height: 20),
             const Text(
@@ -40,7 +41,12 @@ class NoCompanyPage extends StatelessWidget {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Action pour créer ou rejoindre une entreprise
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateCompanyPage(),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
@@ -49,7 +55,7 @@ class NoCompanyPage extends StatelessWidget {
                     horizontal: 32, vertical: 16),
                 textStyle: const TextStyle(fontSize: 16),
               ),
-              child: const Text('Créer/Rejoindre une entreprise'),
+              child: const Text('Créer une entreprise'),
             ),
           ],
         ),

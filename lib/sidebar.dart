@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'companies_page.dart';
+import 'main.dart';
 
 class Sidebar extends StatelessWidget {
   final String? companyName;
@@ -115,6 +118,19 @@ class Sidebar extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   ),
+                  ListTile(
+                    leading: const Icon(Icons.business, color: Colors.black),
+                    title: const Text('Entreprises', style: TextStyle(color: Colors.black)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CompaniesPage(),
+                        ),
+                      );
+                    },
+                  ),
                   const Divider(),
                   ListTile(
                     leading: const Icon(Icons.settings, color: Colors.black),
@@ -126,8 +142,14 @@ class Sidebar extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.black),
                     title: const Text('Déconnexion', style: TextStyle(color: Colors.black)),
-                    onTap: () {
-                      Navigator.pop(context);
+                    onTap: () async {
+                      final supabase = Supabase.instance.client;
+                      await supabase.auth.signOut();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AuthPage()),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                   ),
                 ],

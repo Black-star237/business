@@ -11,6 +11,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   supabase_flutter: ^2.5.0
+  image_picker: ^1.1.2
+  flutter_svg: ^2.0.0+1
+  lottie: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -23,6 +26,13 @@ flutter:
     - assets/1238.jpg
     - assets/logo.jpg
     - assets/welcom.jpg
+    - assets/creation_entreprise.jpg
+    - assets/notfound_img.png
+    - assets/entreprise.png
+    - assets/chargement_voiture_lottie.json
+    - assets/sablier_lottie.json
+    - assets/chargement_ia_lottie.json
+    - assets/bien_joue_lottie.json
   fonts:
     - family: Roboto
       fonts:
