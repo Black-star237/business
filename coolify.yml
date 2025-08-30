@@ -1,0 +1,2 @@
+build:
+  publishDir: build/web

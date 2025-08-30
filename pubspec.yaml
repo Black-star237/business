@@ -1,0 +1,43 @@
+name: fluxiabiz
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  intl: ^0.18.0
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  supabase_flutter: ^2.5.0
+  image_picker: ^1.1.2
+  flutter_svg: ^2.0.0+1
+  lottie: ^3.1.0
+
+dev_dependencies:
+  intl: ^0.18.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/1238.jpg
+    - assets/logo.jpg
+    - assets/welcom.jpg
+    - assets/creation_entreprise.jpg
+    - assets/notfound_img.png
+    - assets/entreprise.png
+    - assets/chargement_voiture_lottie.json
+    - assets/sablier_lottie.json
+    - assets/chargement_ia_lottie.json
+    - assets/bien_joue_lottie.json
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
