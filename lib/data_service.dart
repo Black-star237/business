@@ -33,7 +33,7 @@ class DataService {
       // Commandes
       final ordersResponse = await supabase
           .from('sales')
-          .count(CountOption.exact)
+          .select('count', count: 'exact')
           .eq('company_id', companyId)
           .gte('sale_date', startDate.toIso8601String())
           .lte('sale_date', endDate.toIso8601String())
@@ -41,7 +41,7 @@ class DataService {
 
       final previousOrdersResponse = await supabase
           .from('sales')
-          .count(CountOption.exact)
+          .select('count', count: 'exact')
           .eq('company_id', companyId)
           .gte('sale_date', previousStartDate)
           .lte('sale_date', previousEndDate)
@@ -50,14 +50,14 @@ class DataService {
       // Clients actifs
       final activeClientsResponse = await supabase
           .from('clients')
-          .count(CountOption.exact)
+          .select('count', count: 'exact')
           .eq('company_id', companyId)
           .eq('is_active', true)
           .single();
 
       final previousActiveClientsResponse = await supabase
           .from('clients')
-          .count(CountOption.exact)
+          .select('count', count: 'exact')
           .eq('company_id', companyId)
           .eq('is_active', true)
           .gte('created_at', previousStartDate)
@@ -67,14 +67,14 @@ class DataService {
       // Alertes de stock
       final stockAlertsResponse = await supabase
           .from('inventory_alerts')
-          .count(CountOption.exact)
+          .select('count', count: 'exact')
           .eq('company_id', companyId)
           .eq('is_resolved', false)
           .single();
 
       final previousStockAlertsResponse = await supabase
           .from('inventory_alerts')
-          .count(CountOption.exact)
+          .select('count', count: 'exact')
           .eq('company_id', companyId)
           .eq('is_resolved', false)
           .gte('created_at', previousStartDate)

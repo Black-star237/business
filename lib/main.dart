@@ -871,7 +871,7 @@ class _UserPageState extends State<UserPage> {
                         spacing: 16,
                         runSpacing: 16,
                         children: [
-                          _buildActionButton(Icons.support_agent, 'Assistant IA'),
+                          _buildActionButton(Icons.robot, 'Assistant IA'),
                           _buildActionButton(Icons.add_shopping_cart, 'Nouveau Produit'),
                           _buildActionButton(Icons.person_add, 'Nouveau Client'),
                         ],
