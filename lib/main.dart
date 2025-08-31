@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
         useMaterial3: true,
         fontFamily: 'Roboto',
+        scaffoldBackgroundColor: Color(0xFFF6F6F6), // Light background
       ),
       home: const AuthChecker(),
     );
@@ -123,7 +124,7 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFFD700), // Gold color
+                      color: Color(0xFFF7931A), // Orange color
                       letterSpacing: 2.0,
                     ),
                   ),
@@ -147,7 +148,7 @@ class WelcomePage extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isHovered
-                                ? const Color(0xFFFFD700) // Gold when hovered
+                                ? const Color(0xFFF7931A) // Orange when hovered
                                 : Colors.black, // Black by default
                             foregroundColor: isHovered
                                 ? Colors.black // Black text when hovered
@@ -810,7 +811,7 @@ class _UserPageState extends State<UserPage> {
                                   )
                                 : '0%',
                             icon: Icons.attach_money,
-                            color: const Color(0xFFF3F9FF),
+                            color: const Color(0xFFFFFFFF),
                           ),
                           KpiCard(
                             title: 'Commandes',
@@ -824,7 +825,7 @@ class _UserPageState extends State<UserPage> {
                                   )
                                 : '0%',
                             icon: Icons.shopping_cart,
-                            color: const Color(0xFFF3F9FF),
+                            color: const Color(0xFFFFFFFF),
                           ),
                           KpiCard(
                             title: 'Clients Actifs',
@@ -838,7 +839,7 @@ class _UserPageState extends State<UserPage> {
                                   )
                                 : '0%',
                             icon: Icons.people,
-                            color: const Color(0xFFF3F9FF),
+                            color: const Color(0xFFFFFFFF),
                           ),
                           KpiCard(
                             title: 'Alertes de Stock',
@@ -852,7 +853,7 @@ class _UserPageState extends State<UserPage> {
                                   )
                                 : '0%',
                             icon: Icons.warning,
-                            color: const Color(0xFFF3F9FF),
+                            color: const Color(0xFFFFFFFF),
                           ),
                         ],
                       ),
@@ -1035,7 +1036,7 @@ class _UserPageState extends State<UserPage> {
         // Gérer la sélection du filtre
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isActive ? const Color(0xFFFFD700) : Colors.black,
+        backgroundColor: isActive ? const Color(0xFFF7931A) : Colors.black,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
@@ -1077,7 +1078,7 @@ class _UserPageState extends State<UserPage> {
   Widget _buildActivityItem(String title, String subtitle, String time, String user) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: const Color(0xFFF3F9FF),
+      color: const Color(0xFFFFFFFF),
       child: ListTile(
         leading: const Icon(Icons.circle, size: 12),
         title: Text(title),

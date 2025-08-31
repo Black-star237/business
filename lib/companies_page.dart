@@ -126,7 +126,7 @@ class _CompaniesPageState extends State<CompaniesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Entreprises', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF222630), // Dark background
       ),
       body: Stack(
         children: [
@@ -183,6 +183,7 @@ class _CompaniesPageState extends State<CompaniesPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
+                          color: Color(0xFFFFFFFF), // White cards
                           child: ListTile(
                             leading: company['logo_url'] != null
                                 ? CircleAvatar(
@@ -214,7 +215,7 @@ class _CompaniesPageState extends State<CompaniesPage> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Color(0xFF222630), // Dark background
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 12),
@@ -226,7 +227,7 @@ class _CompaniesPageState extends State<CompaniesPage> {
                           // Rejoindre button (inerte pour le moment)
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Color(0xFF222630), // Dark background
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 12),
