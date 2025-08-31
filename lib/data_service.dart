@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 
 class DataService {
   final supabase = Supabase.instance.client;
@@ -33,53 +33,53 @@ class DataService {
       // Commandes
       final ordersResponse = await supabase
           .from('sales')
-          .select('count', count: 'exact')
+          .select()
           .eq('company_id', companyId)
           .gte('sale_date', startDate.toIso8601String())
           .lte('sale_date', endDate.toIso8601String())
-          .single();
+          .count(CountOption.exact);
 
       final previousOrdersResponse = await supabase
           .from('sales')
-          .select('count', count: 'exact')
+          .select()
           .eq('company_id', companyId)
           .gte('sale_date', previousStartDate)
           .lte('sale_date', previousEndDate)
-          .single();
+          .count(CountOption.exact);
 
       // Clients actifs
       final activeClientsResponse = await supabase
           .from('clients')
-          .select('count', count: 'exact')
+          .select()
           .eq('company_id', companyId)
           .eq('is_active', true)
-          .single();
+          .count(CountOption.exact);
 
       final previousActiveClientsResponse = await supabase
           .from('clients')
-          .select('count', count: 'exact')
+          .select()
           .eq('company_id', companyId)
           .eq('is_active', true)
           .gte('created_at', previousStartDate)
           .lte('created_at', previousEndDate)
-          .single();
+          .count(CountOption.exact);
 
       // Alertes de stock
       final stockAlertsResponse = await supabase
           .from('inventory_alerts')
-          .select('count', count: 'exact')
+          .select()
           .eq('company_id', companyId)
           .eq('is_resolved', false)
-          .single();
+          .count(CountOption.exact);
 
       final previousStockAlertsResponse = await supabase
           .from('inventory_alerts')
-          .select('count', count: 'exact')
+          .select()
           .eq('company_id', companyId)
           .eq('is_resolved', false)
           .gte('created_at', previousStartDate)
           .lte('created_at', previousEndDate)
-          .single();
+          .count(CountOption.exact);
 
       return {
         'revenue': {
@@ -87,16 +87,16 @@ class DataService {
           'previous': previousRevenueResponse['revenue'] ?? 0,
         },
         'orders': {
-          'current': ordersResponse['count'] ?? 0,
-          'previous': previousOrdersResponse['count'] ?? 0,
+          'current': ordersResponse.count ?? 0,
+          'previous': previousOrdersResponse.count ?? 0,
         },
         'activeClients': {
-          'current': activeClientsResponse['count'] ?? 0,
-          'previous': previousActiveClientsResponse['count'] ?? 0,
+          'current': activeClientsResponse.count ?? 0,
+          'previous': previousActiveClientsResponse.count ?? 0,
         },
         'stockAlerts': {
-          'current': stockAlertsResponse['count'] ?? 0,
-          'previous': previousStockAlertsResponse['count'] ?? 0,
+          'current': stockAlertsResponse.count ?? 0,
+          'previous': previousStockAlertsResponse.count ?? 0,
         },
       };
     } catch (error) {
@@ -195,7 +195,7 @@ class DataService {
 
   // Formater les valeurs KPI avec comparaison
   String formatKpiValue(double current, double previous) {
-    final formatter = NumberFormat('#,##0', 'fr_FR');
+    final formatter = intl.NumberFormat('#,##0', 'fr_FR');
     final difference = current - previous;
     final percentageChange = previous != 0 ? (difference / previous) * 100 : 0;
 

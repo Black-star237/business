@@ -151,7 +151,7 @@ class _CreateCompanyPageState extends State<CreateCompanyPage> {
               child: DecoratedBox(
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/creation_entreprise.jpg'),
+                    image: AssetImage('assets/creation_entreprise.webp'),
                     fit: BoxFit.cover,
                   ),
                 ),

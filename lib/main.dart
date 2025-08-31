@@ -78,7 +78,7 @@ class WelcomePage extends StatelessWidget {
               child: DecoratedBox(
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/1238.jpg'),
+                    image: AssetImage('assets/1238.webp'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -100,7 +100,7 @@ class WelcomePage extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
-                      'assets/logo.jpg',
+                      'assets/logo.webp',
                       width: 120,
                       height: 120,
                       fit: BoxFit.cover,
@@ -338,7 +338,7 @@ class _AuthPageState extends State<AuthPage> {
               child: DecoratedBox(
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/welcom.jpg'),
+                    image: AssetImage('assets/welcom.webp'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -736,9 +736,9 @@ class _UserPageState extends State<UserPage> {
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      _buildAdCard('assets/creation_entreprise.jpg', 'Publicité 1'),
-                      _buildAdCard('assets/welcom.jpg', 'Publicité 2'),
-                      _buildAdCard('assets/logo.jpg', 'Publicité 3'),
+                      _buildAdCard('assets/creation_entreprise.webp', 'Publicité 1'),
+                      _buildAdCard('assets/welcom.webp', 'Publicité 2'),
+                      _buildAdCard('assets/logo.webp', 'Publicité 3'),
                     ],
                   ),
                 ),
@@ -757,15 +757,21 @@ class _UserPageState extends State<UserPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          _buildFilterButton('Aujourd\'hui', true),
-                          _buildFilterButton('Hier', false),
-                          _buildFilterButton('Semaine', false),
-                          _buildFilterButton('Mois', false),
-                          _buildCalendarButton(),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterButton('Aujourd\'hui', true),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Hier', false),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Semaine', false),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Mois', false),
+                            const SizedBox(width: 8),
+                            _buildCalendarButton(),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -785,69 +791,70 @@ class _UserPageState extends State<UserPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        height: 180,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            KpiCard(
-                              title: 'Chiffre d\'affaires',
-                              value: data['revenue'] != null
-                                  ? '${data['revenue']['current']} €'
-                                  : '0 €',
-                              comparison: data['revenue'] != null
-                                  ? _formatComparison(
-                                      data['revenue']['current'],
-                                      data['revenue']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.attach_money,
-                              color: Colors.green,
-                            ),
-                            KpiCard(
-                              title: 'Commandes',
-                              value: data['orders'] != null
-                                  ? data['orders']['current'].toString()
-                                  : '0',
-                              comparison: data['orders'] != null
-                                  ? _formatComparison(
-                                      data['orders']['current'],
-                                      data['orders']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.shopping_cart,
-                              color: Colors.blue,
-                            ),
-                            KpiCard(
-                              title: 'Clients Actifs',
-                              value: data['activeClients'] != null
-                                  ? data['activeClients']['current'].toString()
-                                  : '0',
-                              comparison: data['activeClients'] != null
-                                  ? _formatComparison(
-                                      data['activeClients']['current'],
-                                      data['activeClients']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.people,
-                              color: Colors.purple,
-                            ),
-                            KpiCard(
-                              title: 'Alertes de Stock',
-                              value: data['stockAlerts'] != null
-                                  ? data['stockAlerts']['current'].toString()
-                                  : '0',
-                              comparison: data['stockAlerts'] != null
-                                  ? _formatComparison(
-                                      data['stockAlerts']['current'],
-                                      data['stockAlerts']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.warning,
-                              color: Colors.red,
-                            ),
-                          ],
-                        ),
+                      GridView.count(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          KpiCard(
+                            title: 'Chiffre d\'affaires',
+                            value: data['revenue'] != null
+                                ? '${data['revenue']['current']} €'
+                                : '0 FCFA',
+                            comparison: data['revenue'] != null
+                                ? _formatComparison(
+                                    data['revenue']['current'],
+                                    data['revenue']['previous'],
+                                  )
+                                : '0%',
+                            icon: Icons.attach_money,
+                            color: const Color(0xFFF3F9FF),
+                          ),
+                          KpiCard(
+                            title: 'Commandes',
+                            value: data['orders'] != null
+                                ? data['orders']['current'].toString()
+                                : '0',
+                            comparison: data['orders'] != null
+                                ? _formatComparison(
+                                    data['orders']['current'],
+                                    data['orders']['previous'],
+                                  )
+                                : '0%',
+                            icon: Icons.shopping_cart,
+                            color: const Color(0xFFF3F9FF),
+                          ),
+                          KpiCard(
+                            title: 'Clients Actifs',
+                            value: data['activeClients'] != null
+                                ? data['activeClients']['current'].toString()
+                                : '0',
+                            comparison: data['activeClients'] != null
+                                ? _formatComparison(
+                                    data['activeClients']['current'],
+                                    data['activeClients']['previous'],
+                                  )
+                                : '0%',
+                            icon: Icons.people,
+                            color: const Color(0xFFF3F9FF),
+                          ),
+                          KpiCard(
+                            title: 'Alertes de Stock',
+                            value: data['stockAlerts'] != null
+                                ? data['stockAlerts']['current'].toString()
+                                : '0',
+                            comparison: data['stockAlerts'] != null
+                                ? _formatComparison(
+                                    data['stockAlerts']['current'],
+                                    data['stockAlerts']['previous'],
+                                  )
+                                : '0%',
+                            icon: Icons.warning,
+                            color: const Color(0xFFF3F9FF),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -867,14 +874,17 @@ class _UserPageState extends State<UserPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: [
-                          _buildActionButton(Icons.robot, 'Assistant IA'),
-                          _buildActionButton(Icons.add_shopping_cart, 'Nouveau Produit'),
-                          _buildActionButton(Icons.person_add, 'Nouveau Client'),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildActionButton(Icons.android, 'IA'),
+                            const SizedBox(width: 16),
+                            _buildActionButton(Icons.add_shopping_cart, 'Produit'),
+                            const SizedBox(width: 16),
+                            _buildActionButton(Icons.person_add, 'Client'),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -1020,17 +1030,19 @@ class _UserPageState extends State<UserPage> {
   }
 
   Widget _buildFilterButton(String label, bool isActive) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: isActive,
-      onSelected: (selected) {
+    return ElevatedButton(
+      onPressed: () {
         // Gérer la sélection du filtre
       },
-      selectedColor: Colors.orange,
-      backgroundColor: Colors.grey[200],
-      labelStyle: TextStyle(
-        color: isActive ? Colors.white : Colors.black,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isActive ? const Color(0xFFFFD700) : Colors.black,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
+      child: Text(label),
     );
   }
 
@@ -1052,11 +1064,11 @@ class _UserPageState extends State<UserPage> {
       icon: Icon(icon),
       label: Text(label),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(25),
         ),
       ),
     );
@@ -1065,6 +1077,7 @@ class _UserPageState extends State<UserPage> {
   Widget _buildActivityItem(String title, String subtitle, String time, String user) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: const Color(0xFFF3F9FF),
       child: ListTile(
         leading: const Icon(Icons.circle, size: 12),
         title: Text(title),

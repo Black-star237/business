@@ -14,6 +14,7 @@ dependencies:
   image_picker: ^1.1.2
   flutter_svg: ^2.0.0+1
   lottie: ^3.1.0
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -23,12 +24,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/1238.jpg
-    - assets/logo.jpg
-    - assets/welcom.jpg
-    - assets/creation_entreprise.jpg
-    - assets/notfound_img.png
-    - assets/entreprise.png
+    - assets/1238.webp
+    - assets/logo.webp
+    - assets/welcom.webp
+    - assets/creation_entreprise.webp
+    - assets/notfound_img.webp
+    - assets/entreprise.webp
     - assets/chargement_voiture_lottie.json
     - assets/sablier_lottie.json
     - assets/chargement_ia_lottie.json

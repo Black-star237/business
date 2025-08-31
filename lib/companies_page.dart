@@ -133,7 +133,7 @@ class _CompaniesPageState extends State<CompaniesPage> {
           // Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/entreprise.png',
+              'assets/entreprise.webp',
               fit: BoxFit.cover,
             ),
           ),

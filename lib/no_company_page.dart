@@ -16,7 +16,7 @@ class NoCompanyPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/notfound_img.png',
+              'assets/notfound_img.webp',
               width: 300,
               height: 300,
             ),
