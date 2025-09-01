@@ -1,10 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart' as intl;
+import 'cache_service.dart';
 
-class DataService {
+class DataService with CacheMixin {
   final supabase = Supabase.instance.client;
 
-  // Récupérer les KPIs pour une période donnée
+  // Récupérer les KPIs pour une période donnée avec cache
   Future<Map<String, dynamic>> getKpis({
     required String companyId,
     required DateTime startDate,
@@ -12,6 +13,22 @@ class DataService {
     required String previousStartDate,
     required String previousEndDate,
   }) async {
+    final cacheKey = 'kpis_${companyId}_${startDate.toIso8601String()}_${endDate.toIso8601String()}';
+    
+    return withCache(
+      cacheKey,
+      () => _fetchKpisFromDatabase(companyId, startDate, endDate, previousStartDate, previousEndDate),
+      ttl: const Duration(minutes: 2), // Cache court pour les KPIs
+    );
+  }
+  
+  Future<Map<String, dynamic>> _fetchKpisFromDatabase(
+    String companyId,
+    DateTime startDate,
+    DateTime endDate,
+    String previousStartDate,
+    String previousEndDate,
+  ) async {
     try {
       // Chiffre d'affaires
       final revenueResponse = await supabase
@@ -110,11 +127,22 @@ class DataService {
     }
   }
 
-  // Récupérer les activités récentes
+  // Récupérer les activités récentes avec cache
   Future<List<Map<String, dynamic>>> getRecentActivities({
     required String companyId,
     int limit = 10,
   }) async {
+    return withCache(
+      'activities_${companyId}_$limit',
+      () => _fetchRecentActivitiesFromDatabase(companyId, limit),
+      ttl: const Duration(minutes: 1), // Cache très court pour les activités
+    );
+  }
+  
+  Future<List<Map<String, dynamic>>> _fetchRecentActivitiesFromDatabase(
+    String companyId,
+    int limit,
+  ) async {
     try {
       // Combiner différentes sources d'activités
       final salesResponse = await supabase
@@ -205,23 +233,29 @@ class DataService {
 
     return '${formatter.format(current)}\n$comparisonText';
   }
-  // Récupérer une image de fond depuis app_assets par ID
+  // Récupérer une image de fond depuis app_assets par ID avec cache
   Future<String?> getBackgroundImageUrl(int assetId) async {
-    try {
-      final response = await supabase
-          .from('app_assets')
-          .select('image_url')
-          .eq('id', assetId);
+    return withCache(
+      'bg_image_$assetId',
+      () async {
+        try {
+          final response = await supabase
+              .from('app_assets')
+              .select('image_url')
+              .eq('id', assetId);
 
-      if (response.isNotEmpty) {
-        return response[0]['image_url'] as String?;
-      } else {
-        print('No background image found for ID: $assetId');
-        return null;
-      }
-    } catch (error) {
-      print('Error fetching background image: $error');
-      return null;
-    }
+          if (response.isNotEmpty) {
+            return response[0]['image_url'] as String?;
+          } else {
+            print('No background image found for ID: $assetId');
+            return null;
+          }
+        } catch (error) {
+          print('Error fetching background image: $error');
+          return null;
+        }
+      },
+      ttl: const Duration(hours: 1), // Cache les images plus longtemps
+    );
   }
 }

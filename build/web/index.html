@@ -18,21 +18,106 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Fluxiabiz - Tableau de bord business intelligent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Optimisations de performance -->
+  <link rel="preconnect" href="https://hhkqazdivfkqcpcjdqbv.supabase.co">
+  <link rel="preload" href="assets/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/logo.webp" as="image">
+  <link rel="preload" href="assets/1238.webp" as="image">
+  
+  <!-- PWA meta tags -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="fluxiabiz">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fluxiabiz">
+  <meta name="theme-color" content="#F7931A">
+  
+  <!-- Icons -->
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>fluxiabiz</title>
+  <title>Fluxiabiz - Dashboard Business</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Styles critiques inline pour éviter le FOUC -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #F6F6F6;
+      overflow-x: hidden;
+    }
+    
+    /* Écran de chargement initial */
+    .initial-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #F7931A 0%, #FF6B35 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+    
+    .initial-loader.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loader-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+    
+    .loader-text {
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .loader-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    /* Optimisations pour connexions lentes */
+    .low-bandwidth img {
+      filter: blur(1px);
+      transition: filter 0.3s ease;
+    }
+    
+    .low-bandwidth img:hover {
+      filter: none;
+    }
+  </style>
 </head>
 <body>
+  <!-- Écran de chargement initial -->
+  <div class="initial-loader" id="initialLoader">
+    <img src="assets/logo.webp" alt="Fluxiabiz" class="loader-logo">
+    <div class="loader-text">Fluxiabiz</div>
+    <div class="loader-subtitle">Chargement de votre dashboard...</div>
+  </div>
+
+  <!-- Script d'optimisation des performances -->
+  <script src="performance.js"></script>
   <script src="flutter_bootstrap.js" async></script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -64,6 +149,40 @@
       const updateNotification = document.getElementById('updateNotification');
       if (updateNotification) {
         updateNotification.remove();
+      }
+      
+      // Masquer l'écran de chargement initial après le chargement de Flutter
+      setTimeout(() => {
+        const loader = document.getElementById('initialLoader');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(() => {
+            loader.remove();
+          }, 500);
+        }
+      }, 1000);
+    });
+    
+    // Gestion des erreurs de chargement
+    window.addEventListener('error', (e) => {
+      console.error('Erreur de chargement:', e);
+      const loader = document.getElementById('initialLoader');
+      if (loader) {
+        loader.innerHTML = `
+          <div style="text-align: center; color: white;">
+            <h3>Erreur de chargement</h3>
+            <p>Veuillez rafraîchir la page</p>
+            <button onclick="location.reload()" style="
+              background: white;
+              color: #F7931A;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 5px;
+              cursor: pointer;
+              font-weight: bold;
+            ">Rafraîchir</button>
+          </div>
+        `;
       }
     });
   </script>

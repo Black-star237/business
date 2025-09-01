@@ -6,6 +6,11 @@ import 'no_company_page.dart';
 import 'companies_page.dart';
 import 'package:lottie/lottie.dart';
 import 'loading_indicator.dart';
+import 'optimized_loading_screen.dart';
+import 'optimized_image_widget.dart';
+import 'optimized_loading_indicator.dart';
+import 'lazy_kpi_dashboard.dart';
+import 'cache_service.dart';
 import 'navbar.dart';
 import 'kpi_dashboard.dart';
 import 'main_revenue_card.dart';
@@ -14,13 +19,40 @@ import 'data_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Supabase.initialize(
-    url: 'https://hhkqazdivfkqcpcjdqbv.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhoa3FhemRpdmZrcWNwY2pkcWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NzIwMzcsImV4cCI6MjA3MTI0ODAzN30.PYopflHcTXkuMC9k0o2vMPJzBrIp705hrvxUdggMZoM',
-  );
-
+  
+  // Démarrage immédiat de l'app, initialisation Supabase en arrière-plan
   runApp(const MyApp());
+}
+
+// Singleton pour l'initialisation lazy de Supabase
+class SupabaseManager {
+  static SupabaseManager? _instance;
+  static SupabaseManager get instance => _instance ??= SupabaseManager._();
+  
+  SupabaseManager._();
+  
+  bool _isInitialized = false;
+  Future<void>? _initializationFuture;
+  
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+    
+    _initializationFuture ??= _performInitialization();
+    await _initializationFuture;
+  }
+  
+  Future<void> _performInitialization() async {
+    if (_isInitialized) return;
+    
+    await Supabase.initialize(
+      url: 'https://hhkqazdivfkqcpcjdqbv.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhoa3FhemRpdmZrcWNwY2pkcWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NzIwMzcsImV4cCI6MjA3MTI0ODAzN30.PYopflHcTXkuMC9k0o2vMPJzBrIp705hrvxUdggMZoM',
+    );
+    
+    _isInitialized = true;
+  }
+  
+  bool get isInitialized => _isInitialized;
 }
 
 class MyApp extends StatelessWidget {
@@ -47,10 +79,14 @@ class AuthChecker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.value(Supabase.instance.client.auth.currentSession),
+      future: _checkAuthStatus(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const OptimizedLoadingScreen();
+        }
+
+        if (snapshot.hasError) {
+          return const WelcomePage();
         }
 
         if (snapshot.hasData && snapshot.data != null) {
@@ -60,6 +96,16 @@ class AuthChecker extends StatelessWidget {
         }
       },
     );
+  }
+  
+  Future<Session?> _checkAuthStatus() async {
+    try {
+      await SupabaseManager.instance.initialize();
+      return Supabase.instance.client.auth.currentSession;
+    } catch (e) {
+      print('Erreur initialisation Supabase: $e');
+      return null;
+    }
   }
 }
 
@@ -72,61 +118,17 @@ class WelcomePage extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned.fill(
-            child: FutureBuilder<String?>(
-              future: DataService().getBackgroundImageUrl(1).then((url) {
-                if (url != null) {
-                  print("Background image URL for ID 1: $url");
-                } else {
-                  print("No background image found for ID 1");
-                }
-                return url;
-              }),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/1238.webp'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                if (snapshot.hasError || !snapshot.hasData) {
-                  return BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/1238.webp'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(snapshot.data!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.5),
+          // Utiliser le widget d'image optimisé
+          FutureBuilder<String?>(
+            future: DataService().getBackgroundImageUrl(1),
+            builder: (context, snapshot) {
+              return OptimizedBackgroundImage(
+                networkUrl: snapshot.data,
+                fallbackAsset: 'assets/1238.webp',
+                cacheId: 1,
+                child: Container(), // Conteneur vide pour l'overlay
+              );
+            },
           ),
           Center(
             child: Padding(
@@ -361,61 +363,17 @@ class _AuthPageState extends State<AuthPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned.fill(
-            child: FutureBuilder<String?>(
-              future: DataService().getBackgroundImageUrl(2).then((url) {
-                if (url != null) {
-                  print("Background image URL for ID 2: $url");
-                } else {
-                  print("No background image found for ID 2");
-                }
-                return url;
-              }),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/welcom.webp'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                if (snapshot.hasError || !snapshot.hasData) {
-                  return BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/welcom.webp'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                return BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(snapshot.data!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.4),
+          // Utiliser le widget d'image optimisé pour l'AuthPage
+          FutureBuilder<String?>(
+            future: DataService().getBackgroundImageUrl(2),
+            builder: (context, snapshot) {
+              return OptimizedBackgroundImage(
+                networkUrl: snapshot.data,
+                fallbackAsset: 'assets/welcom.webp',
+                cacheId: 2,
+                child: Container(), // Conteneur vide pour l'overlay
+              );
+            },
           ),
           Center(
             child: Padding(
@@ -864,70 +822,10 @@ class _UserPageState extends State<UserPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      MainRevenueCard(
-                        revenue: data['revenue'] != null
-                            ? '${data['revenue']['current']} €'
-                            : '0 FCFA',
-                        comparison: data['revenue'] != null
-                            ? _formatComparison(
-                                data['revenue']['current'],
-                                data['revenue']['previous'],
-                              )
-                            : '0%',
+                      // Utiliser le dashboard KPI optimisé avec chargement différé
+                      LazyKpiDashboard(
+                        companyId: widget.user.id,
                         isDarkMode: _isDarkMode,
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 160,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            SecondaryKpiCard(
-                              title: 'Commandes',
-                              value: data['orders'] != null
-                                  ? data['orders']['current'].toString()
-                                  : '0',
-                              comparison: data['orders'] != null
-                                  ? _formatComparison(
-                                      data['orders']['current'],
-                                      data['orders']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.shopping_cart,
-                              isDarkMode: _isDarkMode,
-                            ),
-                            const SizedBox(width: 16),
-                            SecondaryKpiCard(
-                              title: 'Clients Actifs',
-                              value: data['activeClients'] != null
-                                  ? data['activeClients']['current'].toString()
-                                  : '0',
-                              comparison: data['activeClients'] != null
-                                  ? _formatComparison(
-                                      data['activeClients']['current'],
-                                      data['activeClients']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.people,
-                              isDarkMode: _isDarkMode,
-                            ),
-                            const SizedBox(width: 16),
-                            SecondaryKpiCard(
-                              title: 'Alertes de Stock',
-                              value: data['stockAlerts'] != null
-                                  ? data['stockAlerts']['current'].toString()
-                                  : '0',
-                              comparison: data['stockAlerts'] != null
-                                  ? _formatComparison(
-                                      data['stockAlerts']['current'],
-                                      data['stockAlerts']['previous'],
-                                    )
-                                  : '0%',
-                              icon: Icons.warning,
-                              isDarkMode: _isDarkMode,
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),
