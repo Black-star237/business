@@ -5,6 +5,7 @@ import 'main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
 import 'loading_indicator.dart';
+import 'data_service.dart';
 
 class CompaniesPage extends StatefulWidget {
   const CompaniesPage({super.key});
@@ -132,9 +133,35 @@ class _CompaniesPageState extends State<CompaniesPage> {
         children: [
           // Background image
           Positioned.fill(
-            child: Image.asset(
-              'assets/entreprise.webp',
-              fit: BoxFit.cover,
+            child: FutureBuilder<String?>(
+              future: DataService().getBackgroundImageUrl(3).then((url) {
+                if (url != null) {
+                  print("Background image URL for ID 3: $url");
+                } else {
+                  print("No background image found for ID 3");
+                }
+                return url;
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Image.asset(
+                    'assets/entreprise.webp',
+                    fit: BoxFit.cover,
+                  );
+                }
+
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return Image.asset(
+                    'assets/entreprise.webp',
+                    fit: BoxFit.cover,
+                  );
+                }
+
+                return Image.network(
+                  snapshot.data!,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
           // Loading animation

@@ -1,27 +1,184 @@
-database Structure Overview
-
-Below is a concise description of every schema, its tables, key columns, and relationships in your project.
-
-auth schema
+1. auth schema
 Tables
 
-users – primary key id (UUID). Handles authentication data. Columns include instance_id, aud, role, email, encrypted_password, timestamps, raw_user_meta_data, is_super_admin, etc.
-refresh_tokens – primary key id (bigint). Columns: token, user_id, revoked, timestamps, session_id.
-instances – primary key id (UUID). Columns: uuid, raw_base_config, timestamps.
-audit_log_entries – primary key id (UUID). Columns: instance_id, payload, created_at, ip_address.
-schema_migrations – primary key version (text). Tracks auth migrations.
-identities – primary key id (UUID). Columns: provider_id, user_id, identity_data, provider, timestamps, generated email.
-sessions – primary key id (UUID). Columns: user_id, created_at, updated_at, factor_id, aal, not_after, user_agent, ip, tag.
-mfa_factors – primary key id (UUID). Columns: user_id, friendly_name, factor_type, status, timestamps, secret data, phone, etc.
-mfa_challenges – primary key id (UUID). Columns: factor_id, timestamps, verified_at, otp_code, web_authn_session_data.
-mfa_amr_claims – primary key id (UUID). Columns: session_id, created_at, updated_at, authentication_method.
-sso_providers – primary key id (UUID). Columns: resource_id, timestamps, disabled.
-sso_domains – primary key id (UUID). Columns: sso_provider_id, domain, timestamps.
-saml_providers – primary key id (UUID). Columns: sso_provider_id, entity_id, metadata_xml, attribute_mapping, timestamps.
-saml_relay_states – primary key id (UUID). Columns: sso_provider_id, request_id, for_email, redirect_to, timestamps, flow_state_id.
-flow_state – primary key id (UUID). Columns: user_id, auth_code, PKCE fields, timestamps, authentication_method.
-one_time_tokens – primary key id (UUID). Columns: user_id, token_type, token_hash, timestamps, relates_to.
-Relationships
+users
+
+instance_id – uuid (nullable)
+id – uuid PK (not null)
+aud – varchar (nullable)
+role – varchar (nullable)
+email – varchar (nullable)
+encrypted_password – varchar (nullable)
+email_confirmed_at – timestamptz (nullable)
+invited_at – timestamptz (nullable)
+confirmation_token – varchar (nullable)
+confirmation_sent_at – timestamptz (nullable)
+recovery_token – varchar (nullable)
+recovery_sent_at – timestamptz (nullable)
+email_change_token_new – varchar (nullable)
+email_change – varchar (nullable)
+email_change_sent_at – timestamptz (nullable)
+last_sign_in_at – timestamptz (nullable)
+raw_app_meta_data – jsonb (nullable)
+raw_user_meta_data – jsonb (nullable)
+is_super_admin – boolean (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+phone – text unique (nullable)
+phone_confirmed_at – timestamptz (nullable)
+phone_change – text (nullable)
+phone_change_token – varchar (nullable)
+phone_change_sent_at – timestamptz (nullable)
+confirmed_at – generated timestamptz (nullable)
+email_change_token_current – varchar (nullable)
+email_change_confirm_status – smallint default 0 (check 0‑2)
+banned_until – timestamptz (nullable)
+reauthentication_token – varchar (nullable)
+reauthentication_sent_at – timestamptz (nullable)
+is_sso_user – boolean default false (not null)
+deleted_at – timestamptz (nullable)
+is_anonymous – boolean default false (not null)
+refresh_tokens
+
+instance_id – uuid (nullable)
+id – bigint PK (not null)
+token – varchar unique (nullable)
+user_id – uuid (nullable)
+revoked – boolean (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+parent – varchar (nullable)
+session_id – uuid (nullable)
+instances
+
+id – uuid PK (not null)
+uuid – uuid (nullable)
+raw_base_config – text (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+audit_log_entries
+
+instance_id – uuid (nullable)
+id – uuid PK (not null)
+payload – json (nullable)
+created_at – timestamptz (nullable)
+ip_address – character varying not null, default ''
+schema_migrations
+
+version – character varying PK (not null)
+identities
+
+provider_id – text (not null)
+user_id – uuid (not null)
+identity_data – jsonb (not null)
+provider – text (not null)
+last_sign_in_at – timestamptz (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+email – generated text from identity_data->>'email' (nullable)
+id – uuid PK (not null)
+sessions
+
+id – uuid PK (not null)
+user_id – uuid (not null)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+factor_id – uuid (nullable)
+aal – aal_level (nullable)
+not_after – timestamptz (nullable)
+refreshed_at – timestamp (nullable)
+user_agent – text (nullable)
+ip – inet (nullable)
+tag – text (nullable)
+mfa_factors
+
+id – uuid PK (not null)
+user_id – uuid (not null)
+friendly_name – text (nullable)
+factor_type – factor_type not null (totp, webauthn, phone)
+status – factor_status not null (unverified, verified)
+created_at – timestamptz (not null)
+updated_at – timestamptz (not null)
+secret – text (nullable)
+phone – text (nullable)
+last_challenged_at – timestamptz (nullable)
+web_authn_credential – jsonb (nullable)
+web_authn_aaguid – uuid (nullable)
+mfa_challenges
+
+id – uuid PK (not null)
+factor_id – uuid (not null)
+created_at – timestamptz (not null)
+verified_at – timestamptz (nullable)
+ip_address – inet (not null)
+otp_code – text (nullable)
+web_authn_session_data – jsonb (nullable)
+mfa_amr_claims
+
+session_id – uuid PK (not null)
+created_at – timestamptz (not null)
+updated_at – timestamptz (not null)
+authentication_method – text (not null)
+id – uuid PK (not null)
+sso_providers
+
+id – uuid PK (not null)
+resource_id – text (nullable, non‑empty)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+disabled – boolean (nullable)
+sso_domains
+
+id – uuid PK (not null)
+sso_provider_id – uuid (not null)
+domain – text not null, non‑empty
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+saml_providers
+
+id – uuid PK (not null)
+sso_provider_id – uuid (not null)
+entity_id – text not null, non‑empty, unique
+metadata_xml – text not null, non‑empty
+metadata_url – text (nullable, non‑empty)
+attribute_mapping – jsonb (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+name_id_format – text (nullable)
+saml_relay_states
+
+id – uuid PK (not null)
+sso_provider_id – uuid (not null)
+request_id – text not null, non‑empty
+for_email – text (nullable)
+redirect_to – text (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+flow_state_id – uuid (nullable)
+flow_state
+
+id – uuid PK (not null)
+user_id – uuid (nullable)
+auth_code – text (not null)
+code_challenge_method – code_challenge_method not null (s256, plain)
+code_challenge – text (not null)
+provider_type – text (nullable)
+provider_access_token – text (nullable)
+provider_refresh_token – text (nullable)
+created_at – timestamptz (nullable)
+updated_at – timestamptz (nullable)
+authentication_method – text (not null)
+auth_code_issued_at – timestamptz (nullable)
+one_time_tokens
+
+id – uuid PK (not null)
+user_id – uuid (not null)
+token_type – one_time_token_type not null (confirmation_token, reauthentication_token, recovery_token, email_change_token_new, email_change_token_current, phone_change_token)
+token_hash – text not null, non‑empty
+relates_to – text (not null)
+created_at – timestamp not null, default now()
+updated_at – timestamp not null, default now()
+Relationships (FKs)
 
 identities.user_id → auth.users.id
 sessions.user_id → auth.users.id
@@ -34,104 +191,72 @@ saml_providers.sso_provider_id → auth.sso_providers.id
 saml_relay_states.sso_provider_id → auth.sso_providers.id
 saml_relay_states.flow_state_id → auth.flow_state.id
 one_time_tokens.user_id → auth.users.id
-public schema
-Core Tables
+2. public schema
+Core user‑related tables
+profiles
 
-profiles – primary key id (UUID, FK to auth.users.id). Columns: email (unique), first_name, last_name, phone, avatar_url, position, is_active, timestamps.
-permissions – primary key id (UUID). Columns: user_id (FK to profiles.id), module, action, granted_by (FK to profiles.id), timestamps.
-Business Tables
-categories – primary key id (UUID). Columns: name, description, parent_id (FK to categories.id), image_url, sort_order, is_active, timestamps, company_id.
-suppliers – primary key id (UUID). Columns: name, email, phone, address, contact info, payment_terms, is_active, timestamps, company_id.
-products – primary key id (UUID). Columns: name, description, sku (unique), barcode (unique), category_id (FK to categories.id), supplier_id (FK to suppliers.id), pricing fields, stock fields, unit, tax_rate, image_url, is_active, has_variants, timestamps, company_id, price range fields.
-product_variants – primary key id (UUID). Columns: product_id (FK to products.id), name, sku (unique), barcode (unique), pricing, current_stock, timestamps.
-stock_movements – primary key id (UUID). Columns: product_id (FK to products.id), variant_id (FK to product_variants.id), movement_type (enum), quantity, unit_cost, reference fields, notes, created_by (FK to profiles.id), timestamps.
-inventory_alerts – primary key id (UUID). Columns: product_id (FK to products.id), alert_type, threshold_value, is_resolved, resolved_by (FK to profiles.id), timestamps, company_id.
-clients – primary key id (UUID). Columns: contact info, tax number, type, credit limit, payment terms, activity flag, purchase stats, created_by (FK to profiles.id), timestamps, company_id.
-client_addresses – primary key id (UUID). Columns: client_id (FK to clients.id), address fields, is_default, timestamps.
-client_notes – primary key id (UUID). Columns: client_id (FK to clients.id), note, type, importance flag, created_by (FK to profiles.id), timestamps.
-client_categories – primary key id (UUID). Columns: name (unique), description, discount, timestamps.
-sales – primary key id (UUID). Columns: sale_number (unique), client_id (FK to clients.id), financial totals, payment_method (enum), status (enum), notes, sold_by (FK to profiles.id), sale_date, timestamps, company_id.
-sale_items – primary key id (UUID). Columns: sale_id (FK to sales.id), product_id (FK to products.id), variant_id (FK to product_variants.id), quantity, pricing, taxes, line total, timestamps, invoice_id (FK to invoices.id).
-invoices – primary key id (UUID). Columns: invoice_number (unique), sale_id (FK to sales.id), client_id (FK to clients.id), issue/due dates, amounts, status (enum), payment_terms, notes, created_by (FK to profiles.id), timestamps, company_id.
-payments – primary key id (UUID). Columns: invoice_id (FK to invoices.id), sale_id (FK to sales.id), amount, payment_method (enum), payment_date, reference_number, notes, processed_by (FK to profiles.id), timestamps.
-promotions – primary key id (UUID). Columns: name, description, promotion_type (enum), value, purchase thresholds, dates, active flag, usage limits, applied categories/products (UUID arrays), created_by (FK to profiles.id), timestamps, company_id.
-daily_stats – primary key id (UUID). Columns: stat_date (unique), totals for sales, transactions, items sold, average sale value, new clients, profit, timestamps, company_id.
-monthly_reports – primary key id (UUID). Columns: report_month (date), revenue, profit, sales count, new clients, top-selling products (JSONB), revenue by category (JSONB), timestamps, company_id.
-kpi_metrics – primary key id (UUID). Columns: metric_name, metric_value, metric_date, category, timestamps, company_id.
-tax_rates – primary key id (UUID). Columns: name, rate, is_default, is_active, timestamps.
-currencies – primary key id (UUID). Columns: code (unique), name, symbol, exchange_rate, is_default, timestamps.
-ai_conversations – primary key id (UUID). Columns: user_id (FK to profiles.id), title, context_data (JSONB), is_active, timestamps, company_id.
-ai_messages – primary key id (UUID). Columns: conversation_id (FK to ai_conversations.id), role, content, metadata (JSONB), timestamps.
-file_uploads – primary key id (UUID). Columns: filename, original_filename, file_size, mime_type, storage_path, uploaded_by (FK to profiles.id), entity_type, entity_id, is_public, timestamps.
-product_images – primary key id (UUID). Columns: product_id (FK to products.id), file_id (FK to file_uploads.id), is_primary, sort_order, timestamps.
-companies – primary key id (UUID). Columns: name, description, logo_url, contact info, tax number, default currency, timezone, default tax rate, fiscal year start, subscription plan/status, expiration, settings (JSONB), active flag, created_by (FK to profiles.id), timestamps.
-company_members – primary key id (UUID). Columns: company_id (FK to companies.id), user_id (FK to auth.users.id), role (enum), permissions (JSONB), is_active, joined_at, invited_by.
-user_roles – primary key id (UUID). Columns: user_id (FK to auth.users.id), role (enum), timestamps.
-notifications – primary key id (UUID). Columns: type (enum), title, description, read, createdAt, userId (FK to auth.users.id), companyid (FK to companies.id), priority (enum), metadata (JSONB).
-companies_invitations – primary key id (UUID). Columns: email, company_id (FK to companies.id), role, token (unique), expires_at, timestamps.
-companies_join_requests – primary key id (UUID). Columns: user_id (FK to auth.users.id), companies_id (FK to companies.id), status, timestamps.
-Key Relationships
+id – uuid PK, FK → auth.users.id (not null)
+email – text unique, not null
+first_name – text (nullable)
+last_name – text (nullable)
+phone – text (nullable)
+avatar_url – text (nullable)
+position – text (nullable)
+is_active – boolean default true (nullable)
+created_at – timestamptz default now() (nullable)
+updated_at – timestamptz default now() (nullable)
+permissions
 
-profiles.id → auth.users.id (one‑to‑one).
-permissions.user_id → profiles.id; permissions.granted_by → profiles.id.
-categories.parent_id → categories.id.
-products.category_id → categories.id; products.supplier_id → suppliers.id.
-product_variants.product_id → products.id.
-stock_movements.product_id → products.id; stock_movements.variant_id → product_variants.id; stock_movements.created_by → profiles.id.
-inventory_alerts.product_id → products.id; inventory_alerts.resolved_by → profiles.id.
-clients.created_by → profiles.id.
-client_addresses.client_id → clients.id.
-client_notes.client_id → clients.id; client_notes.created_by → profiles.id.
-sales.client_id → clients.id; sales.sold_by → profiles.id.
-sale_items.sale_id → sales.id; sale_items.product_id → products.id; sale_items.variant_id → product_variants.id; sale_items.invoice_id → invoices.id.
-invoices.sale_id → sales.id; invoices.client_id → clients.id; invoices.created_by → profiles.id.
-payments.invoice_id → invoices.id; payments.sale_id → sales.id; payments.processed_by → profiles.id.
-promotions.created_by → profiles.id.
-ai_conversations.user_id → profiles.id; ai_messages.conversation_id → ai_conversations.id.
-file_uploads.uploaded_by → profiles.id.
-product_images.product_id → products.id; product_images.file_id → file_uploads.id.
-companies.created_by → profiles.id.
-company_members.company_id → companies.id; company_members.user_id → auth.users.id.
-user_roles.user_id → auth.users.id.
-notifications.userId → auth.users.id; notifications.companyid → companies.id.
-companies_invitations.company_id → companies.id.
-companies_join_requests.user_id → auth.users.id; companies_join_requests.companies_id → companies.id.
-storage schema
-Tables
+id – uuid PK (not null)
+user_id – uuid (nullable) → public.profiles.id
+module – text (not null)
+action – text (not null)
+granted_by – uuid (nullable) → public.profiles.id
+created_at – timestamptz default now() (nullable)
+user_roles
 
-buckets – primary key id (text). Columns: name, owner (deprecated), timestamps, public, avif_autodetection, size limits, allowed MIME types, owner_id (text), type (enum STANDARD/ANALYTICS).
-objects – primary key id (UUID). Columns: bucket_id (FK to buckets.id), name, owner (deprecated), timestamps, metadata (JSONB), path_tokens (generated), version, owner_id (text), user_metadata (JSONB), level.
-migrations – primary key id (integer). Tracks storage migrations.
-s3_multipart_uploads – primary key id (text). Columns: in_progress_size, upload_signature, bucket_id (FK), key, version, owner_id, timestamps, user_metadata (JSONB).
-s3_multipart_uploads_parts – primary key id (UUID). Columns: upload_id (FK), size, part_number, bucket_id (FK), key, etag, owner_id, version, timestamps.
-prefixes – composite primary key (bucket_id, name, level). Columns: timestamps.
-Relationships
+id – uuid PK (not null)
+user_id – uuid (not null) → auth.users.id
+role – app_role not null (owner, manager, employee)
+created_at – timestamptz default now() (nullable)
+Business entities
+companies
 
-objects.bucket_id → buckets.id.
-s3_multipart_uploads.bucket_id → buckets.id.
-s3_multipart_uploads_parts.upload_id → s3_multipart_uploads.id.
-s3_multipart_uploads_parts.bucket_id → buckets.id.
-prefixes.bucket_id → buckets.id.
-realtime schema
-Tables
+id – uuid PK (not null)
+name – text (not null)
+description – text (nullable)
+logo_url – text (nullable)
+address – text (nullable)
+phone – text (nullable)
+email – text (nullable)
+tax_number – text (nullable)
+currency – text default 'FCFA' (nullable)
+timezone – text default 'Africa/Douala' (nullable)
+default_tax_rate – numeric default 19.25 (nullable)
+fiscal_year_start – date default '2024-01-01' (nullable)
+subscription_plan – text default 'standard' (nullable)
+subscription_status – text default 'active' (nullable)
+subscription_expires_at – timestamptz (nullable)
+settings – jsonb default '{}' (nullable)
+is_active – boolean default true (nullable)
+created_by – uuid (nullable) → public.profiles.id
+created_at – timestamptz default now() (nullable)
+updated_at – timestamptz default now() (nullable)
+banner_url – text (nullable)
+company_members
 
-subscription – primary key id (bigint, identity). Columns: subscription_id (UUID), entity (regclass), filters (array), claims (JSONB), claims_role, timestamps.
-messages – primary key id (UUID). Columns: topic, extension, payload (JSONB), event, private (bool), timestamps.
-schema_migrations – primary key version (bigint). Tracks realtime migrations.
-Time‑partitioned message tables (messages_YYYY_MM_DD) – same structure as messages, used internally for storage efficiency.
+id – uuid PK (not null)
+company_id – uuid (not null) → public.companies.id
+user_id – uuid (not null) → auth.users.id
+role – app_role default 'employee' (not null) (owner,manager,employee)
+permissions – jsonb default '{}' (nullable)
+is_active – boolean default true (nullable)
+joined_at – timestamptz default now() (nullable)
+invited_by – uuid (nullable)
+categories
 
-extensions schema
-No user‑defined tables at present (holds installed extensions).
-supabase_migrations schema
-Table
-schema_migrations – primary key version (text). Holds migration history for Supabase.
-pgbouncer schema
-No user tables (used for connection pooling).
-Summary
-Your database includes:
-
-Auth tables for user management and security.
-Public tables covering core business entities (profiles, products, orders, inventory, finance, CRM, analytics, AI chat, files, companies, notifications, etc.).
-Storage tables for object/bucket management.
-Realtime tables for change‑feed subscriptions and partitioned message logs.
-All tables have appropriate primary keys, foreign key relationships, and most support Row‑Level Security (RLS) where enabled. This structure should give you a solid foundation for building queries, APIs, and Edge Functions against your Supabase project.
+id – uuid PK (not null)
+name – text (not null)
+description – text (nullable)
+parent_id – uuid (nullable) → public.categories.id
+image_url –

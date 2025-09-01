@@ -205,4 +205,23 @@ class DataService {
 
     return '${formatter.format(current)}\n$comparisonText';
   }
+  // Récupérer une image de fond depuis app_assets par ID
+  Future<String?> getBackgroundImageUrl(int assetId) async {
+    try {
+      final response = await supabase
+          .from('app_assets')
+          .select('image_url')
+          .eq('id', assetId);
+
+      if (response.isNotEmpty) {
+        return response[0]['image_url'] as String?;
+      } else {
+        print('No background image found for ID: $assetId');
+        return null;
+      }
+    } catch (error) {
+      print('Error fetching background image: $error');
+      return null;
+    }
+  }
 }

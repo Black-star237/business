@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'main.dart';
 import 'loading_indicator.dart';
+import 'data_service.dart';
 
 class CreateCompanyPage extends StatefulWidget {
   const CreateCompanyPage({super.key});
@@ -146,16 +147,32 @@ class _CreateCompanyPageState extends State<CreateCompanyPage> {
         children: [
           // Background image with blur
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: DecoratedBox(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/creation_entreprise.webp'),
-                    fit: BoxFit.cover,
+            child: FutureBuilder<String?>(
+              future: DataService().getBackgroundImageUrl(9).then((url) {
+                if (url != null) {
+                  print("Background image URL for ID 9: $url");
+                } else {
+                  print("No background image found for ID 9");
+                }
+                return url;
+              }),
+              builder: (context, snapshot) {
+                return BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: snapshot.connectionState == ConnectionState.waiting
+                            ? const AssetImage('assets/creation_entreprise.webp')
+                            : snapshot.hasError || !snapshot.hasData
+                                ? const AssetImage('assets/creation_entreprise.webp')
+                                : NetworkImage(snapshot.data!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           // Dark overlay

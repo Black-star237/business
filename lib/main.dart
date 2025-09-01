@@ -74,16 +74,56 @@ class WelcomePage extends StatelessWidget {
         children: [
           // Background image with blur and overlay
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: DecoratedBox(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/1238.webp'),
-                    fit: BoxFit.cover,
+            child: FutureBuilder<String?>(
+              future: DataService().getBackgroundImageUrl(1).then((url) {
+                if (url != null) {
+                  print("Background image URL for ID 1: $url");
+                } else {
+                  print("No background image found for ID 1");
+                }
+                return url;
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/1238.webp'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/1238.webp'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(snapshot.data!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           // Dark overlay
@@ -334,16 +374,56 @@ class _AuthPageState extends State<AuthPage> {
         children: [
           // Background image with blur and overlay
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: DecoratedBox(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/welcom.webp'),
-                    fit: BoxFit.cover,
+            child: FutureBuilder<String?>(
+              future: DataService().getBackgroundImageUrl(2).then((url) {
+                if (url != null) {
+                  print("Background image URL for ID 2: $url");
+                } else {
+                  print("No background image found for ID 2");
+                }
+                return url;
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/welcom.webp'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/welcom.webp'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(snapshot.data!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           // Dark overlay

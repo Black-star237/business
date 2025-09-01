@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'create_company_page.dart';
+import 'data_service.dart';
 
 class NoCompanyPage extends StatelessWidget {
   const NoCompanyPage({super.key});
@@ -15,10 +16,38 @@ class NoCompanyPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/notfound_img.webp',
-              width: 300,
-              height: 300,
+            FutureBuilder<String?>(
+              future: DataService().getBackgroundImageUrl(4).then((url) {
+                if (url != null) {
+                  print("Background image URL for ID 4: $url");
+                } else {
+                  print("No background image found for ID 4");
+                }
+                return url;
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Image.asset(
+                    'assets/notfound_img.webp',
+                    width: 300,
+                    height: 300,
+                  );
+                }
+
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return Image.asset(
+                    'assets/notfound_img.webp',
+                    width: 300,
+                    height: 300,
+                  );
+                }
+
+                return Image.network(
+                  snapshot.data!,
+                  width: 300,
+                  height: 300,
+                );
+              },
             ),
             const SizedBox(height: 20),
             const Text(
