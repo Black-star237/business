@@ -14,4 +14,5 @@
 
 ## Explication
 
+
 La déclaration de `backgroundImageCache` était incorrecte. J'ai corrigé la syntaxe pour utiliser une initialisation correcte.

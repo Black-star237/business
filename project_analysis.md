@@ -1,57 +1,104 @@
-# Analyse du Projet Fluxiabiz
+# Analyse Complète du Projet Fluxiabiz
 
-## Structure du Projet
+## Table des Matières
 
-Le projet Fluxiabiz est une application Flutter avec une architecture de base de données bien définie. Voici les principaux composants :
+1. [Introduction](#introduction)
+2. [Architecture Technique](#architecture-technique)
+3. [Flux Principal de l'Application](#flux-principal-de-lapplication)
+4. [Pages et Composants](#pages-et-composants)
+5. [Services et Données](#services-et-données)
+6. [Points Forts](#points-forts)
+7. [Points à Améliorer](#points-à-améliorer)
+8. [Diagramme d'Architecture](#diagramme-darchitecture)
 
-### Fichiers Principaux
+## Introduction
 
-1. **lib/main.dart** - Point d'entrée principal de l'application
-   - Initialise Supabase pour l'authentification
-   - Contient les pages d'accueil, d'authentification et utilisateur
-   - Gère la navigation entre les différentes pages
-
-2. **lib/no_company_page.dart** - Page affichée lorsque l'utilisateur n'est associé à aucune entreprise
-
-3. **lib/sidebar.dart** - Composant de barre latérale avec navigation
-
-4. **pubspec.yaml** - Fichier de configuration du projet
-   - Déclare les dépendances (supabase_flutter, cupertino_icons)
-   - Définit les ressources (images, polices)
-
-### Base de Données
-
-La base de données suit une structure complexe avec plusieurs schémas :
-
-1. **auth** - Gère l'authentification des utilisateurs
-2. **public** - Contient les tables principales de l'application :
-   - profiles, permissions
-   - categories, suppliers, products
-   - clients, sales, invoices
-   - companies, company_members
-   - notifications, etc.
-
-3. **storage** - Gère le stockage des fichiers
-4. **realtime** - Pour les abonnements en temps réel
-
-## Fonctionnalités Principales
-
-1. **Authentification** - Connexion/Inscription avec Supabase
-2. **Gestion des Entreprises** - Association des utilisateurs aux entreprises
-3. **Interface Utilisateur** - Navigation avec barre latérale
-4. **Gestion des Produits** - Catégories, fournisseurs, produits
-5. **Ventes et Facturation** - Gestion des ventes, factures et paiements
+Fluxiabiz est une application Flutter multiplateforme conçue pour aider les entreprises à gérer leurs opérations commerciales. L'application utilise Supabase comme backend pour l'authentification, la gestion des données et le stockage d'objets.
 
 ## Architecture Technique
 
-- **Frontend** : Flutter avec Material Design
-- **Backend** : Supabase (authentification + base de données)
-- **Stockage** : Géré par Supabase Storage
-- **Temps Réel** : Abonnements via Supabase Realtime
+### Structure du Projet
+
+- **Multiplateforme** : Android, iOS, Web, Desktop
+- **Backend** : Supabase (authentification, base de données, stockage)
+- **Frontend** : Flutter avec une architecture MVC
+
+### Technologies Clés
+
+- **Flutter** : Framework UI pour créer des interfaces natives
+- **Supabase** : Backend-as-a-Service pour l'authentification et la base de données
+- **Lottie** : Animations vectorielles
+- **SharedPreferences** : Stockage local pour les préférences utilisateur
+
+## Flux Principal de l'Application
+
+1. **Authentification** : L'utilisateur commence sur `AuthChecker` qui vérifie l'état d'authentification
+2. **Connexion/Inscription** : Si non authentifié, l'utilisateur passe par `WelcomePage` → `AuthPage`
+3. **Gestion d'entreprise** : Après authentification, l'utilisateur est dirigé vers :
+   - `NoCompanyPage` s'il n'a pas d'entreprise (puis `CreateCompanyPage`)
+   - `UserPage` s'il a une entreprise active
+4. **Navigation** : L'utilisateur peut naviguer entre les entreprises via `CompaniesPage`
+
+## Pages et Composants
+
+### Pages Principales
+
+- **WelcomePage** : Page d'accueil avec un bouton pour commencer
+- **AuthPage** : Page de connexion/inscription
+- **NoCompanyPage** : Page affichée quand l'utilisateur n'a pas d'entreprise
+- **CreateCompanyPage** : Formulaire de création d'entreprise
+- **CompaniesPage** : Liste des entreprises de l'utilisateur
+- **UserPage** : Tableau de bord principal
+
+### Composants UI
+
+- **Navbar** : Barre de navigation inférieure
+- **Sidebar** : Menu latéral pour la navigation
+- **MainRevenueCard** : Carte principale pour le chiffre d'affaires
+- **SecondaryKpiCard** : Cartes pour les autres KPIs
+- **LoadingIndicator** : Indicateur de chargement personnalisé
+
+## Services et Données
+
+### DataService
+
+Le service centralise les appels à Supabase et fournit des méthodes pour :
+
+- Récupérer les KPIs avec comparaison de périodes
+- Récupérer les activités récentes
+- Formater les valeurs KPI
+- Récupérer les images de fond
+
+### Tables de Données
+
+- **companies** : Informations sur les entreprises
+- **company_members** : Relations entre utilisateurs et entreprises
+- **profiles** : Profils utilisateurs
+- **sales** : Ventes et commandes
+- **clients** : Clients de l'entreprise
+- **inventory_alerts** : Alertes de stock
+- **stock_movements** : Mouvements de stock
+- **app_assets** : Assets de l'application
+
+## Points Forts
+
+1. **Design Moderne** : Interface utilisateur soignée avec animations
+2. **Expérience Utilisateur** : Flux clair et feedback visuel
+3. **Architecture** : Bonne séparation des préoccupations
+4. **Multiplateforme** : Fonctionne sur plusieurs plateformes
 
 ## Points à Améliorer
 
-1. La gestion des erreurs pourrait être plus robuste
-2. Certaines fonctionnalités semblent incomplètes (bouton "Créer/Rejoindre une entreprise")
-3. Le code pourrait bénéficier de commentaires supplémentaires pour la maintenance
-4. Les tests unitaires et d'intégration devraient être ajoutés
+1. **Gestion des Erreurs** : Certaines erreurs pourraient être mieux gérées
+2. **Tests** : Ajouter des tests unitaires et d'intégration
+3. **Documentation** : Compléter la documentation technique
+4. **Accessibilité** : Améliorer les contrastes et labels
+5. **Performance** : Optimiser les chargements d'images et appels réseau
+
+## Diagramme d'Architecture
+
+Voir le fichier [architecture_diagram.md](architecture_diagram.md) pour le diagramme Mermaid complet.
+
+## Conclusion
+
+Fluxiabiz est une application bien conçue avec une architecture solide et une interface utilisateur moderne. Quelques améliorations dans la gestion des erreurs, les tests et la documentation pourraient renforcer encore la qualité du projet.
