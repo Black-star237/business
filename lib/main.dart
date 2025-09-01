@@ -7,7 +7,9 @@ import 'companies_page.dart';
 import 'package:lottie/lottie.dart';
 import 'loading_indicator.dart';
 import 'navbar.dart';
-import 'kpi_card.dart';
+import 'kpi_dashboard.dart';
+import 'main_revenue_card.dart';
+import 'secondary_kpi_card.dart';
 import 'data_service.dart';
 
 void main() async {
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
         useMaterial3: true,
         fontFamily: 'Roboto',
-        scaffoldBackgroundColor: Color(0xFFF6F6F6), // Light background
+        scaffoldBackgroundColor: Color(0xFFF6F6F6),
       ),
       home: const AuthChecker(),
     );
@@ -52,10 +54,8 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data != null) {
-          // User is already authenticated
           return const MainAppContent();
         } else {
-          // User is not authenticated, show welcome page
           return const WelcomePage();
         }
       },
@@ -72,7 +72,6 @@ class WelcomePage extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image with blur and overlay
           Positioned.fill(
             child: FutureBuilder<String?>(
               future: DataService().getBackgroundImageUrl(1).then((url) {
@@ -126,18 +125,15 @@ class WelcomePage extends StatelessWidget {
               },
             ),
           ),
-          // Dark overlay
           Container(
             color: Colors.black.withOpacity(0.5),
           ),
-          // Content
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo with rounded corners
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
@@ -148,7 +144,6 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // Welcome text
                   const Text(
                     'Bienvenu sur',
                     style: TextStyle(
@@ -164,12 +159,11 @@ class WelcomePage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFF7931A), // Orange color
+                      color: Color(0xFFF7931A),
                       letterSpacing: 2.0,
                     ),
                   ),
                   const SizedBox(height: 60),
-                  // Start button with hover effect
                   StatefulBuilder(
                     builder: (context, setState) {
                       bool isHovered = false;
@@ -188,11 +182,11 @@ class WelcomePage extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isHovered
-                                ? const Color(0xFFF7931A) // Orange when hovered
-                                : Colors.black, // Black by default
+                                ? const Color(0xFFF7931A)
+                                : Colors.black,
                             foregroundColor: isHovered
-                                ? Colors.black // Black text when hovered
-                                : Colors.white, // White text by default
+                                ? Colors.black
+                                : Colors.white,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 48, vertical: 16),
                             textStyle: const TextStyle(
@@ -245,18 +239,16 @@ class _AuthPageState extends State<AuthPage> {
 
     try {
       if (_isLogin) {
-        // Login
         final response = await supabase.auth.signInWithPassword(
           email: _emailController.text,
           password: _passwordController.text,
         );
         if (response.user != null) {
-          // Fetch user profile to get the full name
           final userData = await supabase
               .from('profiles')
               .select('first_name, last_name')
               .eq('id', response.user!.id)
-              .single();
+              .maybeSingle();
 
           if (userData == null || userData['first_name'] == null || userData['last_name'] == null) {
             throw Exception('Profil utilisateur incomplet');
@@ -264,7 +256,6 @@ class _AuthPageState extends State<AuthPage> {
 
           final fullName = '${userData['first_name']} ${userData['last_name']}';
 
-          // Check if user has associated companies
           final companyData = await supabase
               .from('company_members')
               .select('company_id, companies!inner (id, name)')
@@ -272,27 +263,27 @@ class _AuthPageState extends State<AuthPage> {
 
           print('Company Data: $companyData');
 
-          if (companyData.isEmpty) {
-            // No companies associated
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NoCompanyPage(),
-              ),
-            );
-          } else {
-            // Redirect to CompaniesPage if user has one or more companies
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const CompaniesPage(),
-              ),
-            );
-          }
           _showSuccessAnimation(context);
+          
+          Future.delayed(const Duration(seconds: 2), () {
+            if (companyData.isEmpty) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NoCompanyPage(),
+                ),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CompaniesPage(),
+                ),
+              );
+            }
+          });
         }
       } else {
-        // Sign up
         final response = await supabase.auth.signUp(
           email: _emailController.text,
           password: _passwordController.text,
@@ -305,15 +296,13 @@ class _AuthPageState extends State<AuthPage> {
         );
         if (response.user != null) {
           try {
-            // Check if profile already exists before inserting
             final existingProfile = await supabase
                 .from('profiles')
                 .select()
                 .eq('id', response.user!.id)
-                .single();
+                .maybeSingle();
 
             if (existingProfile == null) {
-              // Insert into profiles table only if profile doesn't exist
               await supabase.from('profiles').insert({
                 'id': response.user!.id,
                 'email': response.user!.email,
@@ -324,30 +313,30 @@ class _AuthPageState extends State<AuthPage> {
               });
             }
 
-            // Check if user has associated companies (for sign up, typically none)
             final companyData = await supabase
                 .from('company_members')
                 .select('company_id')
                 .eq('user_id', response.user!.id);
 
-            if (companyData.isEmpty) {
-              // No companies associated - always redirect to NoCompanyPage for new signups
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NoCompanyPage(),
-                ),
-              );
-            } else {
-              // This case is unlikely for sign up, but handle it anyway
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CompaniesPage(),
-                ),
-              );
-            }
             _showSuccessAnimation(context);
+            
+            Future.delayed(const Duration(seconds: 2), () {
+              if (companyData.isEmpty) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NoCompanyPage(),
+                  ),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CompaniesPage(),
+                  ),
+                );
+              }
+            });
           } catch (error) {
             setState(() {
               _errorMessage = 'Erreur lors de la création du profil : ${error.toString()}';
@@ -372,7 +361,6 @@ class _AuthPageState extends State<AuthPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image with blur and overlay
           Positioned.fill(
             child: FutureBuilder<String?>(
               future: DataService().getBackgroundImageUrl(2).then((url) {
@@ -426,11 +414,9 @@ class _AuthPageState extends State<AuthPage> {
               },
             ),
           ),
-          // Dark overlay
           Container(
             color: Colors.black.withOpacity(0.4),
           ),
-          // Content
           Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -598,7 +584,6 @@ class MainAppContent extends StatelessWidget {
           );
         }
 
-        // Fallback
         return const Center(child: Text('Aucune donnée utilisateur trouvée'));
       },
     );
@@ -612,43 +597,55 @@ class MainAppContent extends StatelessWidget {
       throw Exception('Utilisateur non connecté');
     }
 
-    // Fetch user profile to get the full name
-    final userData = await supabase
-        .from('profiles')
-        .select('first_name, last_name')
-        .eq('id', user.id)
-        .single();
+    try {
+      final userData = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .maybeSingle();
 
-    if (userData == null || userData['first_name'] == null || userData['last_name'] == null) {
-      throw Exception('Profil utilisateur incomplet');
+      if (userData == null || userData['first_name'] == null || userData['last_name'] == null) {
+        throw Exception('Profil utilisateur incomplet');
+      }
+
+      final fullName = '${userData['first_name']} ${userData['last_name']}';
+
+      final companyData = await supabase
+          .from('company_members')
+          .select('''
+            company_id,
+            companies (
+              id,
+              name,
+              logo_url,
+              banner_url
+            )
+          ''')
+          .eq('user_id', user.id)
+          .limit(1);
+
+      String? activeCompanyName;
+      String? activeCompanyLogoUrl;
+      String? activeCompanyBannerUrl;
+
+      if (companyData.isNotEmpty && companyData.first['companies'] != null) {
+        final company = companyData.first['companies'];
+        activeCompanyName = company['name'];
+        activeCompanyLogoUrl = company['logo_url'];
+        activeCompanyBannerUrl = company['banner_url'];
+      }
+
+      return {
+        'user': user,
+        'fullName': fullName,
+        'activeCompanyName': activeCompanyName,
+        'activeCompanyLogoUrl': activeCompanyLogoUrl,
+        'activeCompanyBannerUrl': activeCompanyBannerUrl,
+      };
+    } catch (error) {
+      print('Erreur lors de la récupération des données utilisateur: $error');
+      rethrow;
     }
-
-    final fullName = '${userData['first_name']} ${userData['last_name']}';
-
-    // Check if user has associated companies
-    final companyData = await supabase
-    .from('company_members')
-    .select('company_id, companies!inner (id, name, logo_url, banner_url)')
-    .eq('user_id', user.id)
-    .limit(1);
-
-    String? activeCompanyName;
-    String? activeCompanyLogoUrl;
-    String? activeCompanyBannerUrl;
-
-    if (companyData.isNotEmpty) {
-      activeCompanyName = companyData.first['companies']['name'];
-      activeCompanyLogoUrl = companyData.first['companies']['logo_url'];
-      activeCompanyBannerUrl = companyData.first['companies']['banner_url'];
-    }
-
-    return {
-      'user': user,
-      'fullName': fullName,
-      'activeCompanyName': activeCompanyName,
-      'activeCompanyLogoUrl': activeCompanyLogoUrl,
-      'activeCompanyBannerUrl': activeCompanyBannerUrl,
-    };
   }
 }
 
@@ -675,6 +672,7 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   bool _isDarkMode = false;
   bool _showSidebar = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _toggleTheme() {
     setState(() {
@@ -690,8 +688,6 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
     return Scaffold(
       key: _scaffoldKey,
       drawer: Sidebar(
@@ -764,7 +760,6 @@ class _UserPageState extends State<UserPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header avec message de bienvenue
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -811,7 +806,6 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
 
-                // Carte de communication/publicité (à implémenter)
                 SizedBox(
                   height: 150,
                   child: ListView(
@@ -824,7 +818,6 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
 
-                // Filtres de période
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -858,7 +851,6 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
 
-                // KPIs
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
@@ -872,76 +864,75 @@ class _UserPageState extends State<UserPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      GridView.count(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          KpiCard(
-                            title: 'Chiffre d\'affaires',
-                            value: data['revenue'] != null
-                                ? '${data['revenue']['current']} €'
-                                : '0 FCFA',
-                            comparison: data['revenue'] != null
-                                ? _formatComparison(
-                                    data['revenue']['current'],
-                                    data['revenue']['previous'],
-                                  )
-                                : '0%',
-                            icon: Icons.attach_money,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                          KpiCard(
-                            title: 'Commandes',
-                            value: data['orders'] != null
-                                ? data['orders']['current'].toString()
-                                : '0',
-                            comparison: data['orders'] != null
-                                ? _formatComparison(
-                                    data['orders']['current'],
-                                    data['orders']['previous'],
-                                  )
-                                : '0%',
-                            icon: Icons.shopping_cart,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                          KpiCard(
-                            title: 'Clients Actifs',
-                            value: data['activeClients'] != null
-                                ? data['activeClients']['current'].toString()
-                                : '0',
-                            comparison: data['activeClients'] != null
-                                ? _formatComparison(
-                                    data['activeClients']['current'],
-                                    data['activeClients']['previous'],
-                                  )
-                                : '0%',
-                            icon: Icons.people,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                          KpiCard(
-                            title: 'Alertes de Stock',
-                            value: data['stockAlerts'] != null
-                                ? data['stockAlerts']['current'].toString()
-                                : '0',
-                            comparison: data['stockAlerts'] != null
-                                ? _formatComparison(
-                                    data['stockAlerts']['current'],
-                                    data['stockAlerts']['previous'],
-                                  )
-                                : '0%',
-                            icon: Icons.warning,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ],
+                      MainRevenueCard(
+                        revenue: data['revenue'] != null
+                            ? '${data['revenue']['current']} €'
+                            : '0 FCFA',
+                        comparison: data['revenue'] != null
+                            ? _formatComparison(
+                                data['revenue']['current'],
+                                data['revenue']['previous'],
+                              )
+                            : '0%',
+                        isDarkMode: _isDarkMode,
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 160,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            SecondaryKpiCard(
+                              title: 'Commandes',
+                              value: data['orders'] != null
+                                  ? data['orders']['current'].toString()
+                                  : '0',
+                              comparison: data['orders'] != null
+                                  ? _formatComparison(
+                                      data['orders']['current'],
+                                      data['orders']['previous'],
+                                    )
+                                  : '0%',
+                              icon: Icons.shopping_cart,
+                              isDarkMode: _isDarkMode,
+                            ),
+                            const SizedBox(width: 16),
+                            SecondaryKpiCard(
+                              title: 'Clients Actifs',
+                              value: data['activeClients'] != null
+                                  ? data['activeClients']['current'].toString()
+                                  : '0',
+                              comparison: data['activeClients'] != null
+                                  ? _formatComparison(
+                                      data['activeClients']['current'],
+                                      data['activeClients']['previous'],
+                                    )
+                                  : '0%',
+                              icon: Icons.people,
+                              isDarkMode: _isDarkMode,
+                            ),
+                            const SizedBox(width: 16),
+                            SecondaryKpiCard(
+                              title: 'Alertes de Stock',
+                              value: data['stockAlerts'] != null
+                                  ? data['stockAlerts']['current'].toString()
+                                  : '0',
+                              comparison: data['stockAlerts'] != null
+                                  ? _formatComparison(
+                                      data['stockAlerts']['current'],
+                                      data['stockAlerts']['previous'],
+                                    )
+                                  : '0%',
+                              icon: Icons.warning,
+                              isDarkMode: _isDarkMode,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                // Actions rapides
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -971,7 +962,6 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
 
-                // Activités récentes
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -1003,9 +993,7 @@ class _UserPageState extends State<UserPage> {
       ),
       bottomNavigationBar: Navbar(
         currentIndex: 0,
-        onTap: (index) {
-          // Gérer la navigation plus tard
-        },
+        onTap: (index) {},
       ),
     );
   }
@@ -1013,16 +1001,13 @@ class _UserPageState extends State<UserPage> {
   Future<Map<String, dynamic>> _loadDashboardData() async {
     final dataService = DataService();
 
-    // Calculer les périodes
     final now = DateTime.now();
-    final startDate = DateTime(now.year, now.month, 1); // Début du mois
-    final endDate = DateTime(now.year, now.month + 1, 0); // Fin du mois
+    final startDate = DateTime(now.year, now.month, 1);
+    final endDate = DateTime(now.year, now.month + 1, 0);
 
-    // Période précédente pour comparaison
     final previousStartDate = DateTime(now.year, now.month - 1, 1);
     final previousEndDate = DateTime(now.year, now.month, 0);
 
-    // Récupérer les données
     final kpis = await dataService.getKpis(
       companyId: Supabase.instance.client.auth.currentUser!.id,
       startDate: startDate,
@@ -1192,7 +1177,9 @@ void _showSuccessAnimation(BuildContext context) {
           fit: BoxFit.contain,
           onLoaded: (composition) {
             Future.delayed(composition.duration, () {
-              Navigator.of(context).pop();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
             });
           },
         ),
