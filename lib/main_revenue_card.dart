@@ -29,9 +29,25 @@ class MainRevenueCard extends StatelessWidget {
                     fit: BoxFit.cover,
                   )
                 : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 08,
+                offset: Offset(0,7),
+              ),
+            ],
           ),
           child: Stack(
             children: [
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.orange,
+                  size: 26,
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -46,7 +62,7 @@ class MainRevenueCard extends StatelessWidget {
                     Text(
                       'Total Wallet Balance',
                       style: TextStyle(
-                        color: const Color(0xFF222630),
+                        color: isDarkMode ? Colors.white : const Color(0xFF222630),
                         fontSize: 14,
                       ),
                     ),
@@ -54,7 +70,7 @@ class MainRevenueCard extends StatelessWidget {
                     Text(
                       revenue,
                       style: TextStyle(
-                        color: const Color(0xFF222630),
+                        color: isDarkMode ? Colors.white : const Color(0xFF222630),
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
@@ -63,7 +79,7 @@ class MainRevenueCard extends StatelessWidget {
                     Text(
                       'Weekly Profit',
                       style: TextStyle(
-                        color: const Color(0xFF222630).withOpacity(0.7),
+                        color: isDarkMode ? Colors.white.withOpacity(0.7) : const Color(0xFF222630).withOpacity(0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -71,7 +87,7 @@ class MainRevenueCard extends StatelessWidget {
                     Text(
                       'Précédent: ${revenue.split(' ')[0]}',
                       style: TextStyle(
-                        color: const Color(0xFF222630).withOpacity(0.7),
+                        color: isDarkMode ? Colors.white.withOpacity(0.7) : const Color(0xFF222630).withOpacity(0.7),
                         fontSize: 14,
                       ),
                     ),
@@ -79,31 +95,27 @@ class MainRevenueCard extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: 16,
+                bottom: 16,
                 right: 16,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: comparison.contains('-') ? Colors.red : Colors.green,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: comparison.contains('-') ? Colors.red : Colors.green,
-                      width: 1.5,
-                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         comparison.contains('-') ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: comparison.contains('-') ? Colors.red : Colors.green,
+                        color: Colors.white,
                         size: 14,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         comparison,
-                        style: TextStyle(
-                          color: comparison.contains('-') ? Colors.red : Colors.green,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),

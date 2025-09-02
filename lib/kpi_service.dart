@@ -27,11 +27,11 @@ class KpiService {
     final percentage = previous != 0 ? (difference / previous) * 100 : 0;
 
     if (difference > 0) {
-      return '+${difference.toStringAsFixed(0)} (${percentage.toStringAsFixed(1)}%)';
+      return '+${percentage.toStringAsFixed(1)}%';
     } else if (difference < 0) {
-      return '${difference.toStringAsFixed(0)} (${percentage.toStringAsFixed(1)}%)';
+      return '${percentage.toStringAsFixed(1)}%';
     } else {
-      return '0 (0%)';
+      return '0%';
     }
   }
 }

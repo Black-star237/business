@@ -936,7 +936,7 @@ class _UserPageState extends State<UserPage> {
     } else if (difference < 0) {
       return '${difference.toStringAsFixed(0)} (${percentage.toStringAsFixed(1)}%)';
     } else {
-      return '0 (0%)';
+      return '0%';
     }
   }
 

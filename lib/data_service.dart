@@ -228,8 +228,8 @@ class DataService with CacheMixin {
     final percentageChange = previous != 0 ? (difference / previous) * 100 : 0;
 
     final comparisonText = difference >= 0
-        ? '+${formatter.format(difference)} (${percentageChange.toStringAsFixed(1)}%)'
-        : '${formatter.format(difference)} (${percentageChange.toStringAsFixed(1)}%)';
+        ? '+${percentageChange.toStringAsFixed(1)}%'
+        : '${percentageChange.toStringAsFixed(1)}%';
 
     return '${formatter.format(current)}\n$comparisonText';
   }
